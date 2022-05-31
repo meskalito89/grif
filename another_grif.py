@@ -1,6 +1,6 @@
 '''what is module docstring?'''
 from typing import Literal
-from typing import Tuple, List
+from typing import Tuple, List, TypeVar, Generic
 from colorama import Fore
 from enum import Enum
 
@@ -48,6 +48,24 @@ class Grif:
 
 
 if __name__ == '__main__':
-    grif = Grif(('e', 'g', 'c'))
-    print(grif)
+    New = TypeVar('New', int, float)
+
+    class NewClass(Generic[New]):
+        'dock string '
+        def __init__(self, value: New) -> None:
+            self.value: New = value
+
+        def get(self) -> New:
+            'dock string'
+            return self.value
+
+        def set(self, new_value: New) -> None:
+            'dock string '
+            self.values: New = new_value
+
+    def f(value1: NewClass[New]):
+        'dock string'
+        print(value1)
+    
+
 
