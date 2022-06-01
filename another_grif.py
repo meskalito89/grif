@@ -12,6 +12,18 @@ Tune = Tuple[Note, ...]
 STANDARD_TUNE: Tune = ('e', 'b', 'g', 'd', 'a', 'e')
 
 
+def _generate_sequence_of_notes_len_n(note: Note,
+                                      length: int) -> List[Note]:
+    '''generate sequence of notes of len (n)'''
+    index_of_note = NOTE_SEQUENCE.index(note)
+    string = []
+    for i in range(length):
+        string.append(
+            NOTE_SEQUENCE[(i + index_of_note + 1) % len(NOTE_SEQUENCE)]
+        )
+    return string
+
+
 class Grif:
     'this class represents grif of guitar and print notes on it'
     def __init__(self, tune: Tune = STANDARD_TUNE,
@@ -22,25 +34,12 @@ class Grif:
         self._text_view = ''
         self._chord = dict[Note, Fore]
 
-
-    def _generate_sequence_of_notes_len_n(self,
-                                          note: Note,
-                                          length: int) -> List[Note]:
-        '''generate sequence of notes of len (n)'''
-        index_of_note = NOTE_SEQUENCE.index(note)
-        string = []
-        for i in range(length):
-            string.append(
-                NOTE_SEQUENCE[(i + index_of_note + 1) % len(NOTE_SEQUENCE)]
-            )
-        return string
-
     def _generate_all_notes(self, tune: Tune) -> List[List[Note]]:
         """generates array with shape(len(tune), n_of_lads)"""
         strings = []
         for note in tune:
             strings.append(
-                self._generate_sequence_of_notes_len_n(note, self.n_of_lads))
+                _generate_sequence_of_notes_len_n(note, self.n_of_lads))
         return strings
 
     def __str__(self) -> str:
@@ -48,24 +47,6 @@ class Grif:
 
 
 if __name__ == '__main__':
-    New = TypeVar('New', int, float)
-
-    class NewClass(Generic[New]):
-        'dock string '
-        def __init__(self, value: New) -> None:
-            self.value: New = value
-
-        def get(self) -> New:
-            'dock string'
-            return self.value
-
-        def set(self, new_value: New) -> None:
-            'dock string '
-            self.values: New = new_value
-
-    def f(value1: NewClass[New]):
-        'dock string'
-        print(value1)
-    
+    pass
 
 
