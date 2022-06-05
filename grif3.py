@@ -1,21 +1,21 @@
 '''This is my 3 try to write normal grif note drawing'''
-from typing import Literal, Tuple, List, Callable, NamedTuple
+from typing import Literal, Tuple, List, Callable, NamedTuple, TypedDict, Dict
 from colorama import Fore
+import numpy as np
 
 
-Note = Literal['a', 'a#', 'b', 'c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#']
-NOTE_SEQUENCE: Tuple[Note, ...] = ('a', 'a#', 'b', 'c', 'c#', 'd',
+Note = Literal['a', 'a#', 'b', 'c', 'c#', 'd', 'd#', 'e',
+               'f', 'f#', 'g', 'g#', '-']
+NOTE_SEQUENCE: Tuple[Note] = ('a', 'a#', 'b', 'c', 'c#', 'd',
                                    'd#', 'e', 'f', 'f#', 'g', 'g#')
-
-
-class ColorOfNote(NamedTuple):
-    color: str
-    note: Note
 
 
 Tune = Tuple[Note, ...]
 STANDARD_TUNE: Tune = ('e', 'b', 'g', 'd', 'a', 'e')
 GridOfNotes = List[List[Note]]
+
+
+color_of_chord: Dict[str, Tuple[Note]] = {}
 
 
 def generate_string_array(note1: Note, n_of_lads: int) -> List[Note]:
@@ -35,7 +35,7 @@ def generate_all_strings(tune: Tune, n_of_lads: int) -> GridOfNotes:
     for note1 in tune:
         string = generate_string_array(note1, n_of_lads)
         grid_of_notes.append(string)
-    return grid_of_notes
+    return np.array(grid_of_notes)
 
 
 def for_each(grif: List[List[Note]],
@@ -47,40 +47,50 @@ def for_each(grif: List[List[Note]],
     return new_grif
 
 
-def replace_all_notes_except(exception_notes: Tuple[Note],
-                             replace_by: str,
-                             grid_of_notes: GridOfNotes) -> GridOfNotes:
+def replace_all_notes_except(grid_of_notes: GridOfNotes) -> GridOfNotes:
     'Replace all notes in grid_of_notes by replace_by string'
-    def replace(note):
-        return note if note in exception_notes else replace_by
-    new_grif = for_each(grid_of_notes, replace)
-    return new_grif
+    note_exception = np.array(
+        [values for values in color_of_chord.values()]).reshape(-1)
+    mask = np.isin(grid_of_notes, note_exception)
+    return np.where(mask, grid_of_notes, '-')
 
 
-def paint_notes(color_notes_dict: ColorOfNote,
-                grid_of_notes: GridOfNotes):
+def paint_notes(grid_of_notes: GridOfNotes):
     'wrap all notes in grid'
+    copy_grid_of_notes = generate_all_strings(STANDARD_TUNE,
+                                              grid_of_notes.shape[1])
+    for color in color_of_chord:
+        for note in color_of_chord[color]:
+            mask = copy_grid_of_notes == note
+            colored_note = Fore.__dict__[color] + note + Fore.WHITE
+            grid_of_notes[mask] = colored_note
 
-    def painter(note):
-        if note in color_notes_dict:
-            return color_notes_dict[note]
-        return Fore.WHITE + note + Fore.WHITE
-
-    new_grid_of_notes = for_each(grid_of_notes, painter)
-    return new_grid_of_notes
+    print(grid_of_notes)
+    return grid_of_notes
 
 
-def text_formatter(grid_of_notes: GridOfNotes) -> str:
+
+def text_formatter(grid_of_notes: GridOfNotes,
+                   width_of_lad: int = 5,) -> str:
     '''crete text from grif_of_notes.
     Then it might be printed in console for example'''
-    raise NotImplementedError
+    text = ''
+    for string in grid_of_notes:
+        for note in string:
+            text += note.center(width_of_lad + 10, '-') + '|'
+        text += '\n'
+    lad_numbers = ''
+    for lad_number in ('', '', 'III', '', 'V', '',
+                       'VII', '', 'IX', '', '', 'XII'):
+        lad_numbers += lad_number.center(width_of_lad + 1, ' ')
+
+    return text + lad_numbers
 
 
 if __name__ == '__main__':
     grif = generate_all_strings(('e', 'b', 'g', 'd', 'a', 'e'), 15)
-    grif = replace_all_notes_except(('c', 'e', 'g'), '-', grif)
-    colors = ColorOfNote('RED', ('e', 'c', 'g'))
-    print(colors.color)
-    # grif = paint_notes(colors, grif)
-    # for_each(grif, print)
-
+    color_of_chord['RED'] = ('a', 'c', 'e')
+    color_of_chord['BLUE'] = ('g', 'b', 'd')
+    grif = replace_all_notes_except(grif)
+    paint_notes(grif)
+    # print(grif == 'c')
