@@ -1,11 +1,11 @@
-from typing import Literal, Tuple, Dict, List, Callable
-from colorama import Fore
+import argparse
+from typing import Literal, Tuple, Dict, List, Callable, Any
 
 
 Note = Literal['a', 'a#', 'b', 'c', 'c#', 'd', 'd#', 'e',
                'f', 'f#', 'g', 'g#', '-']
-NOTE_SEQUENCE: Tuple[Note] = ('a', 'a#', 'b', 'c', 'c#', 'd',
-                                   'd#', 'e', 'f', 'f#', 'g', 'g#')
+NOTE_SEQUENCE: List[Note] = ['a', 'a#', 'b', 'c', 'c#', 'd',
+                             'd#', 'e', 'f', 'f#', 'g', 'g#']
 
 
 def generate_string_array(note1: Note, n_of_lads: int) -> List[Note]:
@@ -28,33 +28,27 @@ def generate_all_strings(tune: Tuple[Note],  n_of_lads: int) -> List[List[Note]]
     return grid_of_notes
 
 
-
-
-
 class Grif:
-    def __init__(self, tune=('e', 'b', 'g', 'd', 'a', 'e'), n_of_lads=15):
+    def __init__(self,
+                 tune=('e', 'b', 'g', 'd', 'a', 'e'),
+                 n_of_lads: int = 15,
+                 lad_width: int = 5):
         self.tune = tune
-        self.chord_color: Dict[Note, str] = {}
+        self.lad_width = lad_width
+        self.chord: List[Note] = []
         self.grid = generate_all_strings(tune, n_of_lads)
-        self.grid_for_printer = []
+        self.grid_for_printer: List = []
+        self.str: str = ''
+        self.n_of_lads = n_of_lads
+        
+    def add_chord(self, chord) -> None:
+        'added chord into object chord field'
+        if isinstance(chord, list):
+            self.chord += chord
+        else:
+            self.chord.append(chord)
 
-    def add_chord(self, chord: Tuple[Note, ...], color: str = Fore.WHITE) -> None:
-        'added chord and color into object chord_color field'
-        for note in chord:
-            self.chord_color[note] = color
 
-    def colorize_note(self):
-
-        def paint(note, color):
-            if note in self.chord_color:
-                return Fore.__dict__[color] + note + Fore.WHITE
-            return Fore.WHITE + note + Fore.WHITE
-
-        for note, color in self.chord_color.items():
-            self.for_each(self.grid, paint)
-
-            
-            
     def for_each(self, array: List[List[Note]], func: Callable) -> List[List[Note]]:
         new_array = []
         for string in array:
@@ -63,12 +57,45 @@ class Grif:
                 new_string.append(func(note))
             new_array.append(new_string)
         return new_array
-            
 
+    def get_grif_of_oly_chords_note(self):
+        copy_grid = []
+        for string in self.grid:
+            new_string = []
+            for note in string:
+                if note not in self.chord:
+                    note = '-'
+                new_string.append(note)
+            copy_grid.append(new_string)
+        return copy_grid
+
+    def get_lad_numbers_string(self):
+        lad_string = ''
+        for lad_number in ('', '', 'III', '', 'V', '', 'VII', '', 'IX', '', '', 'XII'):
+            lad_string += lad_number.center(self.lad_width + 1, ' ')
+        return lad_string
+
+    def __str__(self):
+        for string in self.get_grif_of_oly_chords_note():
+            for note in string:
+                self.str += note.center(self.lad_width, '-') + '|'
+            self.str += '\n'
+        self.str += self.get_lad_numbers_string()
+        return self.str
 
 
 if __name__ == '__main__':
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('-c', '--chord', help='notes of chord separate by space')
+    argparser.add_argument('-t', '--tune', help='tune of guitar separate by space')
+    args = argparser.parse_args()
+
+    tune = args.tune.split()
+    chord = args.chord.split()
+    
     grif = Grif()
-    grif.add_chord(('c'), 'RED')
-    print(generate_all_strings(grif.tune, 15))
+    if tune:
+        grif = Grif(tune=tune)
+    grif.add_chord(chord)
+    print(grif)
 
