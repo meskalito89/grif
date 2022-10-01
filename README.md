@@ -8,6 +8,7 @@ options:
 
 
 Examples:
+
     input:
         python grif4.py -t "e b g d a e" -c 'c e g'
     output:
