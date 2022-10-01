@@ -4,8 +4,10 @@ Console util for print notes on griff of guitar
 
 options: 
 
- -t (tuner) it options used for open string pitches. Can be used to indicate the type of guitar. Ukulele, bass, or 12 string guitar, etc. 
- -c (chord) indicates which notes on grif shuld be marked 
+
+-t (tuner) it options used for open string pitches. Can be used to indicate the type of guitar. Ukulele, bass, or 12 string guitar, etc. 
+
+-c (chord) indicates which notes on grif shuld be marked 
 
 
 Examples:
