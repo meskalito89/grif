@@ -4,6 +4,7 @@ from typing import Literal, Tuple, Dict, List, Callable, Any
 
 Note = Literal['a', 'a#', 'b', 'c', 'c#', 'd', 'd#', 'e',
                'f', 'f#', 'g', 'g#', '-']
+
 NOTE_SEQUENCE: List[Note] = ['a', 'a#', 'b', 'c', 'c#', 'd',
                              'd#', 'e', 'f', 'f#', 'g', 'g#']
 
